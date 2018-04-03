@@ -1,4 +1,7 @@
 <resources>
     <string name="app_name">BakingApp</string>
     <string name="title_item_detail">Item Detail</string>
+    <string name="wait">Loading… Please wait</string>
+    <string name="server_error">Something went wrong</string>
+    <string name="description">Description :</string>
 </resources>
