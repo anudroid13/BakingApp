@@ -1,5 +1,7 @@
 package com.darwinbox.bakingapp.retrofit;
 
+import android.util.Log;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
@@ -25,6 +27,7 @@ public final class RetroBuilder {
                 .build().create(GetRecipe.class);
 
 
+        Log.d("anudroid", "builder");
         return getRecipe;
     }
 }

@@ -5,7 +5,7 @@ import android.os.Parcelable;
 
 import com.google.gson.annotations.SerializedName;
 
-public class StepsModel implements Parcelable {
+public class Step implements Parcelable {
 
     @SerializedName("id")
     private int id;
@@ -22,7 +22,7 @@ public class StepsModel implements Parcelable {
     @SerializedName("thumbnailURL")
     private String thumbnailUrl;
 
-    protected StepsModel(Parcel in) {
+    protected Step(Parcel in) {
         id = in.readInt();
         shortDescription = in.readString();
         description = in.readString();
@@ -30,15 +30,15 @@ public class StepsModel implements Parcelable {
         thumbnailUrl = in.readString();
     }
 
-    public static final Creator<StepsModel> CREATOR = new Creator<StepsModel>() {
+    public static final Creator<Step> CREATOR = new Creator<Step>() {
         @Override
-        public StepsModel createFromParcel(Parcel in) {
-            return new StepsModel(in);
+        public Step createFromParcel(Parcel in) {
+            return new Step(in);
         }
 
         @Override
-        public StepsModel[] newArray(int size) {
-            return new StepsModel[size];
+        public Step[] newArray(int size) {
+            return new Step[size];
         }
     };
 

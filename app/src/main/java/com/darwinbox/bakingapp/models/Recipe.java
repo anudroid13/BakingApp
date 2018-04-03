@@ -7,7 +7,7 @@ import com.google.gson.annotations.SerializedName;
 
 import java.util.ArrayList;
 
-public class RecipeModel implements Parcelable {
+public class Recipe implements Parcelable {
 
     @SerializedName("id")
     private int id;
@@ -21,25 +21,25 @@ public class RecipeModel implements Parcelable {
     @SerializedName("image")
     private String image;
 
-    private ArrayList<IngredientsModel> ingredients;
-    private ArrayList<StepsModel> steps;
+    private ArrayList<Ingredient> ingredients;
+    private ArrayList<Step> steps;
 
-    protected RecipeModel(Parcel in) {
+    protected Recipe(Parcel in) {
         id = in.readInt();
         name = in.readString();
         servings = in.readInt();
         image = in.readString();
     }
 
-    public static final Creator<RecipeModel> CREATOR = new Creator<RecipeModel>() {
+    public static final Creator<Recipe> CREATOR = new Creator<Recipe>() {
         @Override
-        public RecipeModel createFromParcel(Parcel in) {
-            return new RecipeModel(in);
+        public Recipe createFromParcel(Parcel in) {
+            return new Recipe(in);
         }
 
         @Override
-        public RecipeModel[] newArray(int size) {
-            return new RecipeModel[size];
+        public Recipe[] newArray(int size) {
+            return new Recipe[size];
         }
     };
 
@@ -59,19 +59,19 @@ public class RecipeModel implements Parcelable {
         return image;
     }
 
-    public ArrayList<IngredientsModel> getIngredients() {
+    public ArrayList<Ingredient> getIngredients() {
         return ingredients;
     }
 
-    public void setIngredients(ArrayList<IngredientsModel> ingredients) {
+    public void setIngredients(ArrayList<Ingredient> ingredients) {
         this.ingredients = ingredients;
     }
 
-    public ArrayList<StepsModel> getSteps() {
+    public ArrayList<Step> getSteps() {
         return steps;
     }
 
-    public void setSteps(ArrayList<StepsModel> steps) {
+    public void setSteps(ArrayList<Step> steps) {
         this.steps = steps;
     }
 
