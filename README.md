@@ -8,7 +8,11 @@ As you'll go through the code you'll find few implementations such as Mater-Deta
 
 This project uses following third party libraries.
 
-<p><a href='https://github.com/google/ExoPlayer'>ExoPlayer</a></p>
-<p><a href='https://github.com/square/picasso'>Picasso</a></p>
-<p><a href='https://github.com/google/gson'>GSON</a></p>
-<p><a href='https://developer.android.com/training/testing/espresso/index.html'>Expresso</a></p>
+<a href='https://github.com/google/ExoPlayer'>ExoPlayer</a><br>
+<a href='https://github.com/square/picasso'>Picasso</a><br>
+<a href='https://github.com/google/gson'>GSON</a><br>
+<a href='https://developer.android.com/training/testing/espresso/index.html'>Expresso</a><br>
+
+<h3>References</h3>
+<a href='https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRYxK9-DEoT9WHmSMEYEeIB2oG3Dhf3BmvI7LkveBso8G7KbvahyA'>
+  https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRYxK9-DEoT9WHmSMEYEeIB2oG3Dhf3BmvI7LkveBso8G7KbvahyA</a>
