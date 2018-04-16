@@ -1,7 +1,5 @@
 package com.darwinbox.bakingapp.retrofit;
 
-import android.util.Log;
-
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
@@ -11,23 +9,16 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public final class RetroBuilder {
 
-    static GetRecipe getRecipe;
-
     public static GetRecipe Retrieve() {
 
         Gson gson = new GsonBuilder().create();
 
         OkHttpClient.Builder httpClientBuilder = new OkHttpClient.Builder();
 
-
-        getRecipe = new Retrofit.Builder()
+        return new Retrofit.Builder()
                 .baseUrl("https://d17h27t6h515a5.cloudfront.net/topher/2017/May/59121517_baking/")
                 .addConverterFactory(GsonConverterFactory.create(gson))
                 .callFactory(httpClientBuilder.build())
                 .build().create(GetRecipe.class);
-
-
-        Log.d("anudroid", "builder");
-        return getRecipe;
     }
 }

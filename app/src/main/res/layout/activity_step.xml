@@ -1,26 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
-
-
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/recipe_linear_layout"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:gravity="center_horizontal">
+    tools:context="com.darwinbox.bakingapp.activities.StepActivity">
 
     <include
         layout="@layout/toolbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"/>
 
-    <fragment
-        android:id="@+id/fragment_container"
+    <FrameLayout
         android:layout_width="match_parent"
-        android:scaleType="centerInside"
         android:layout_height="match_parent"
-        class="com.darwinbox.bakingapp.fragments.RecipeDetailFragment"
-        layout="@layout/recipe_detail_fragment_body_part" />
-
+        android:id="@+id/step_fragment_container">
+    </FrameLayout>
 </LinearLayout>
-
-

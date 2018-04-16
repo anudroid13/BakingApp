@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">Baking App</string>
+    <string name="appwidget_text">EXAMPLE</string>
+    <string name="configure">Choose your favorite recipe : </string>
+    <string name="done">Done</string>
+    <string name="loading_error_messages">Error in loading recipes. Please try again.</string>
 </resources>

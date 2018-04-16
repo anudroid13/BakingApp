@@ -15,16 +15,15 @@ import com.darwinbox.bakingapp.models.Recipe;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
-import java.util.Objects;
 
 public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.RecyclerViewHolder> {
 
-    ArrayList<Recipe> lRecipes;
-    Context mContext;
+    private ArrayList<Recipe> lRecipes;
+    private Context mContext;
     final private ListItemClickListener lOnClickListener;
 
     public interface ListItemClickListener {
-        void onListItemClick(Recipe clickedItemIndex);
+        void onListItemClick(int clickedItemIndex);
     }
 
     public RecipeAdapter(ListItemClickListener listener) {
@@ -32,19 +31,18 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.RecyclerVi
     }
 
 
-    public void setRecipeData(ArrayList<Recipe> recipesIn, Context context) {
+    public void setRecipeData(ArrayList<Recipe> recipesIn) {
         lRecipes = recipesIn;
-        mContext = context;
         notifyDataSetChanged();
     }
 
     @NonNull
     @Override
     public RecyclerViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        Context context = parent.getContext();
+        mContext = parent.getContext();
         int layoutIdForListItem = R.layout.recipe_cardview_items;
 
-        LayoutInflater inflater = LayoutInflater.from(context);
+        LayoutInflater inflater = LayoutInflater.from(mContext);
         View view = inflater.inflate(layoutIdForListItem, parent, false);
 
         return new RecyclerViewHolder(view);
@@ -52,13 +50,15 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.RecyclerVi
 
     @Override
     public void onBindViewHolder(@NonNull RecyclerViewHolder holder, int position) {
-        holder.textRecyclerView.setText(lRecipes.get(position).getName());
+        holder.textRecipeName.setText(lRecipes.get(position).getName());
+        holder.textServings.setText("Servings : " + String.valueOf(lRecipes.get(position).getServings()));
         String imageUrl = lRecipes.get(position).getImage();
 
-        if (!Objects.equals(imageUrl, "")) {
-            Uri builtUri = Uri.parse(imageUrl).buildUpon().build();
-            Picasso.with(mContext).load(builtUri).into(holder.imageRecyclerView);
-        }
+        Uri builtUri = Uri.parse(imageUrl).buildUpon().build();
+        Picasso.with(mContext)
+                .load(builtUri)
+                .error(R.drawable.recipe)
+                .into(holder.imageRecyclerView);
     }
 
     @Override
@@ -66,27 +66,32 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.RecyclerVi
         return lRecipes != null ? lRecipes.size() : 0;
     }
 
-    class RecyclerViewHolder extends RecyclerView.ViewHolder implements
+    public class RecyclerViewHolder extends RecyclerView.ViewHolder implements
             View.OnClickListener {
 
-        TextView textRecyclerView;
+        TextView textRecipeName;
+        TextView textServings;
         ImageView imageRecyclerView;
 
 
         RecyclerViewHolder(View itemView) {
             super(itemView);
 
-            textRecyclerView = itemView.findViewById(R.id.title);
+            textRecipeName = itemView.findViewById(R.id.title);
             imageRecyclerView = itemView.findViewById(R.id.recipeImage);
+            textServings = itemView.findViewById(R.id.servings);
 
             itemView.setOnClickListener(this);
+        }
+
+        public String getRecipeName(){
+            return textRecipeName.getText().toString();
         }
 
         @Override
         public void onClick(View v) {
             int clickedPosition = getAdapterPosition();
-            lOnClickListener.onListItemClick(lRecipes.get(clickedPosition));
+            lOnClickListener.onListItemClick(clickedPosition);
         }
-
     }
 }

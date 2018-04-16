@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-
-
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/recipe_linear_layout"
+    android:tag="tablet-land"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
@@ -12,14 +11,25 @@
         layout="@layout/toolbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"/>
-
+<LinearLayout
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="horizontal">
     <fragment
         android:id="@+id/fragment_container"
-        android:layout_width="match_parent"
-        android:scaleType="centerInside"
+        android:layout_width="0dp"
+        android:layout_weight="1"
         android:layout_height="match_parent"
         class="com.darwinbox.bakingapp.fragments.RecipeDetailFragment"
         layout="@layout/recipe_detail_fragment_body_part" />
+    <FrameLayout
+        android:id="@+id/step_fragment_container"
+        android:layout_width="0dp"
+        android:layout_weight="1"
+        android:layout_height="match_parent"
+        android:padding="25dp" />
+</LinearLayout>
+
 
 </LinearLayout>
 

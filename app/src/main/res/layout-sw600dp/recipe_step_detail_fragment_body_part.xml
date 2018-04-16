@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:tool="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:tag="sw600dp-land-recipe_step_detail"
     android:padding="0dp"
     android:orientation="vertical">
@@ -16,27 +16,25 @@
         <com.google.android.exoplayer2.ui.SimpleExoPlayerView
             android:id="@+id/playerView"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            android:layout_marginRight="0dp"
-            android:layout_marginBottom="20dp"
-            android:layout_marginLeft="0dp"
-            android:layout_margin="0dp" />
+            android:layout_height="300dp"
+            app:resize_mode="fill"
+            android:layout_marginBottom="20dp" />
+
         <ImageView
             android:id="@+id/thumbImage"
-            android:layout_gravity="left"
-            android:paddingRight="15dp"
+            android:scaleType="fitXY"
             android:elevation="1dp"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content" />
+
         <TextView
             tool:text="my textbox"
             android:layout_width="match_parent"
-            android:textColor="@android:color/white"
+            android:textColor="@color/colorBlack"
             android:id="@+id/recipe_step_detail_text"
             android:textSize="20sp"
+            android:padding="16dp"
             android:layout_height="wrap_content"
-            android:padding="0dp"
             android:layout_margin="5dp" />
     </LinearLayout>
 
@@ -62,8 +60,6 @@
             android:layout_width="70dp"
             android:layout_height="70dp" />
     </LinearLayout>
-
-
 </LinearLayout>
 
 

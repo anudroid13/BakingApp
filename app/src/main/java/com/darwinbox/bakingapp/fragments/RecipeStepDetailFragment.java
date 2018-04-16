@@ -1,26 +1,23 @@
 package com.darwinbox.bakingapp.fragments;
 
-import android.content.Context;
-import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.support.v4.content.ContextCompat;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.darwinbox.bakingapp.R;
 import com.darwinbox.bakingapp.activities.RecipeDetailActivity;
-import com.darwinbox.bakingapp.models.Recipe;
 import com.darwinbox.bakingapp.models.Step;
+import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.DefaultLoadControl;
 import com.google.android.exoplayer2.ExoPlayerFactory;
 import com.google.android.exoplayer2.LoadControl;
@@ -41,213 +38,220 @@ import com.google.android.exoplayer2.util.Util;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
 
-import static com.darwinbox.bakingapp.activities.RecipeActivity.SELECTED_INDEX;
-import static com.darwinbox.bakingapp.activities.RecipeActivity.SELECTED_RECIPES;
-import static com.darwinbox.bakingapp.activities.RecipeActivity.SELECTED_STEPS;
 
-public class RecipeStepDetailFragment extends Fragment {
+public class RecipeStepDetailFragment extends Fragment implements View.OnClickListener {
+
+    private static final String RESUME_WINDOW_KEY = "resume_window_key";
+    private static final String RESUME_POSITION_KEY = "resume_position_key";
+    private String STEPS_POSITION_KEY = "steps_position_key";
+    private String STEPS_LIST_KEY = "steps_list_key";
 
     private PlayerView simpleExoPlayerView;
     private SimpleExoPlayer player;
-    private BandwidthMeter bandwidthMeter;
     private ArrayList<Step> steps = new ArrayList<>();
-    private int selectedIndex;
-    private Handler mainHandler;
-    ArrayList<Recipe> recipe;
-    String recipeName;
+    private int position;
+    private Button mPrevStep;
+    private Button mNextstep;
+    private ImageView thumbImage;
+    private TextView textView;
+    private int resumeWindow;
+    private long resumePosition;
+    private boolean isLandscape;
+    private TrackSelector trackSelector;
 
     public RecipeStepDetailFragment() {
 
     }
 
-    private ListItemClickListener itemClickListener;
+    public void setSteps(ArrayList<Step> steps) {
+        this.steps = steps;
+    }
 
-    public interface ListItemClickListener {
-        void onListItemClick(List<Step> allSteps, int Index, String recipeName);
+    public void setPosition(int position) {
+        this.position = position;
     }
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-
-        TextView textView;
-        mainHandler = new Handler();
-        bandwidthMeter = new DefaultBandwidthMeter();
-
-        itemClickListener = (RecipeDetailActivity) getActivity();
-
-        recipe = new ArrayList<>();
-
-        if (savedInstanceState != null) {
-            steps = savedInstanceState.getParcelableArrayList(SELECTED_STEPS);
-            selectedIndex = savedInstanceState.getInt(SELECTED_INDEX);
-            recipeName = savedInstanceState.getString("Title");
-        } else {
-            steps = getArguments().getParcelableArrayList(SELECTED_STEPS);
-
-            if (steps != null) {
-                steps = getArguments().getParcelableArrayList(SELECTED_STEPS);
-                selectedIndex = getArguments().getInt(SELECTED_INDEX);
-                recipeName = getArguments().getString("Title");
-            } else {
-                recipe = getArguments().getParcelableArrayList(SELECTED_RECIPES);
-                //casting List to ArrayList
-                steps = recipe.get(0).getSteps();
-                selectedIndex = 0;
-            }
-        }
-
         View rootView = inflater.inflate(
                 R.layout.recipe_step_detail_fragment_body_part, container,
                 false);
 
         textView = rootView.findViewById(R.id.recipe_step_detail_text);
-        textView.setText(steps.get(selectedIndex).getDescription());
-        textView.setVisibility(View.VISIBLE);
+        thumbImage = rootView.findViewById(R.id.thumbImage);
 
         simpleExoPlayerView = rootView.findViewById(R.id.playerView);
         simpleExoPlayerView.setResizeMode(AspectRatioFrameLayout.RESIZE_MODE_FIT);
 
-        String videoURL = steps.get(selectedIndex).getVideoUrl();
+        mPrevStep = rootView.findViewById(R.id.previousStep);
+        mNextstep = rootView.findViewById(R.id.nextStep);
+
+        isLandscape = textView == null;
+
+        if(mPrevStep != null){
+            mPrevStep.setOnClickListener(this);
+        }
+
+        if(mNextstep != null){
+            mNextstep.setOnClickListener(this);
+        }
 
         if (rootView.findViewWithTag("sw600dp-port-recipe_step_detail") != null) {
-            recipeName = ((RecipeDetailActivity) getActivity()).recipeName;
+            String recipeName = ((RecipeDetailActivity) getActivity()).recipeName;
             ((RecipeDetailActivity) getActivity()).getSupportActionBar().setTitle(recipeName);
         }
-
-        String imageUrl = steps.get(selectedIndex).getThumbnailUrl();
-        if (!Objects.equals(imageUrl, "")) {
-            Uri builtUri = Uri.parse(imageUrl).buildUpon().build();
-            ImageView thumbImage = (ImageView) rootView.findViewById(R.id.thumbImage);
-            Picasso.with(getContext()).load(builtUri).into(thumbImage);
-        }
-
-        if (!videoURL.isEmpty()) {
-
-
-            initializePlayer(Uri.parse(steps.get(selectedIndex).getVideoUrl()));
-
-            if (rootView.findViewWithTag("sw600dp-land-recipe_step_detail") != null) {
-                getActivity().findViewById(R.id.fragment_container2).setLayoutParams(new LinearLayout.LayoutParams(-1, -2));
-                simpleExoPlayerView.setResizeMode(AspectRatioFrameLayout.RESIZE_MODE_FIXED_WIDTH);
-            } else if (isInLandscapeMode(getContext())) {
-                textView.setVisibility(View.GONE);
-            }
-        } else {
-            player = null;
-            simpleExoPlayerView.setForeground(ContextCompat.getDrawable(getContext(), R.drawable.ic_visibility_off_white_36dp));
-            simpleExoPlayerView.setLayoutParams(new LinearLayout.LayoutParams(300, 300));
-        }
-
-
-        Button mPrevStep = rootView.findViewById(R.id.previousStep);
-        Button mNextstep = rootView.findViewById(R.id.nextStep);
-
-        mPrevStep.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View view) {
-                if (steps.get(selectedIndex).getId() > 0) {
-                    if (player != null) {
-                        player.stop();
-                    }
-                    itemClickListener.onListItemClick(steps, steps.get(selectedIndex).getId() - 1, recipeName);
-                } else {
-                    Toast.makeText(getActivity(), "You already are in the First step of the recipe", Toast.LENGTH_SHORT).show();
-
-                }
-            }
-        });
-
-        mNextstep.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View view) {
-
-                int lastIndex = steps.size() - 1;
-                if (steps.get(selectedIndex).getId() < steps.get(lastIndex).getId()) {
-                    if (player != null) {
-                        player.stop();
-                    }
-                    itemClickListener.onListItemClick(steps, steps.get(selectedIndex).getId() + 1, recipeName);
-                } else {
-                    Toast.makeText(getContext(), "You already are in the Last step of the recipe", Toast.LENGTH_SHORT).show();
-
-                }
-            }
-        });
         return rootView;
     }
 
-    private void initializePlayer(Uri mediaUri) {
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+
+        if (savedInstanceState != null) {
+            steps = savedInstanceState.getParcelableArrayList(STEPS_LIST_KEY);
+            position = savedInstanceState.getInt(STEPS_POSITION_KEY);
+            resumeWindow = savedInstanceState.getInt(RESUME_WINDOW_KEY ,
+                    C.INDEX_UNSET);
+            resumePosition = savedInstanceState.getLong(RESUME_POSITION_KEY ,
+                    C.TIME_UNSET);
+        }
+        if (isLandscape) {
+            //hide the actionbar if the layout is in landscape.
+            ActionBar actionBar =  ((AppCompatActivity)getContext()).getSupportActionBar();
+            if(null != actionBar){
+                actionBar.hide();
+            }
+        }
+        setData();
+    }
+
+    private void setData(){
+        if (steps != null && !steps.isEmpty()) {
+            Step bakingStep = steps.get(position);
+            if (!isLandscape) {
+                textView.setText(bakingStep.getDescription());
+            }
+        }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        initializePlayer();
+        playVideo(steps.get(position));
+    }
+
+    private void initializePlayer() {
         if (player == null) {
+            BandwidthMeter bandwidthMeter = new DefaultBandwidthMeter();
             TrackSelection.Factory videoTrackSelectionFactory =
                     new AdaptiveTrackSelection.Factory(bandwidthMeter);
 
-            TrackSelector trackSelector =
+            trackSelector =
                     new DefaultTrackSelector(videoTrackSelectionFactory);
 
             LoadControl loadControl = new DefaultLoadControl();
 
             player = ExoPlayerFactory.newSimpleInstance(getContext(), trackSelector, loadControl);
             simpleExoPlayerView.setPlayer(player);
-
-            String userAgent = Util.getUserAgent(getContext(), "Baking App");
-            MediaSource mediaSource = new ExtractorMediaSource(mediaUri,
-                    new DefaultDataSourceFactory(getContext(), userAgent),
-                    new DefaultExtractorsFactory(), null, null);
-
-            player.prepare(mediaSource);
-            player.setPlayWhenReady(true);
         }
+    }
+
+    private void playVideo(Step step){
+        if(step.getVideoUrl() == null || step.getVideoUrl().isEmpty()){
+            thumbImage.setVisibility(View.VISIBLE);
+            simpleExoPlayerView.setVisibility(View.GONE);
+
+            Uri builtUri = Uri.parse(step.getThumbnailUrl()).buildUpon().build();
+            Picasso.with(getContext())
+                    .load(builtUri)
+                    .error(R.drawable.recipe)
+                    .into(thumbImage);
+        } else {
+            thumbImage.setVisibility(View.GONE);
+            simpleExoPlayerView.setVisibility(View.VISIBLE);
+        }
+
+        String userAgent = Util.getUserAgent(getContext(), "Baking App");
+        Uri mediaUri = Uri.parse(step.getVideoUrl());
+        MediaSource mediaSource = new ExtractorMediaSource(mediaUri,
+                new DefaultDataSourceFactory(getContext(), userAgent),
+                new DefaultExtractorsFactory(), null, null);
+        boolean isPlayerResumed =  resumeWindow != C.INDEX_UNSET;
+        if(isPlayerResumed){
+            player.seekTo(resumePosition);
+        }
+        player.prepare(mediaSource , !isPlayerResumed , false);
+        player.setPlayWhenReady(true);
     }
 
     @Override
     public void onSaveInstanceState(@NonNull Bundle currentState) {
         super.onSaveInstanceState(currentState);
-        currentState.putParcelableArrayList(SELECTED_STEPS, steps);
-        currentState.putInt(SELECTED_INDEX, selectedIndex);
-        currentState.putString("Title", recipeName);
-    }
 
-    public boolean isInLandscapeMode(Context context) {
-        return (context.getResources().getConfiguration()
-                .orientation == Configuration.ORIENTATION_LANDSCAPE);
-    }
+        if (steps != null) {
+            currentState.putParcelableArrayList(STEPS_LIST_KEY, steps);
+            currentState.putInt(STEPS_POSITION_KEY, position);
 
-    @Override
-    public void onDetach() {
-        super.onDetach();
-        if (player != null) {
-            player.stop();
-            player.release();
+            if(resumeWindow != C.INDEX_UNSET){
+                currentState.putInt(RESUME_WINDOW_KEY , resumeWindow);
+            }
+            if(resumePosition != C.TIME_UNSET){
+                currentState.putLong(RESUME_POSITION_KEY , resumePosition);
+            }
         }
     }
 
     @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        if (player != null) {
-            player.stop();
-            player.release();
-            player = null;
-        }
+    public void onDestroy() {
+        super.onDestroy();
+        player = null;
     }
 
     @Override
-    public void onStop() {
-        super.onStop();
-        if (player != null) {
-            player.stop();
-            player.release();
+    public void onClick(View view) {
+        if(view == mPrevStep){
+            if(position != 0){
+                position--;
+                resumeWindow = 0;
+                resumePosition = 0;
+            }
+
         }
+        if(view == mNextstep){
+            if(position != steps.size()-1){
+                position++;
+                resumeWindow = 0;
+                resumePosition = 0;
+            }
+        }
+        playVideo(steps.get(position));
+        textView.setText(steps.get(position).getDescription());
     }
 
     @Override
     public void onPause() {
         super.onPause();
+
+        updateResumePosition();
+        stopAndReleasePlayer();
+    }
+
+    private void updateResumePosition() {
+        if(player !=  null) {
+            resumeWindow = player.getCurrentWindowIndex();
+            resumePosition = Math.max(0, player.getContentPosition());
+        }
+    }
+
+    private void stopAndReleasePlayer(){
         if (player != null) {
             player.stop();
             player.release();
+            player = null;
+            trackSelector = null;
         }
     }
 }

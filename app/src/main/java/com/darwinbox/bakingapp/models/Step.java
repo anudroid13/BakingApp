@@ -22,6 +22,9 @@ public class Step implements Parcelable {
     @SerializedName("thumbnailURL")
     private String thumbnailUrl;
 
+    public Step() {
+    }
+
     protected Step(Parcel in) {
         id = in.readInt();
         shortDescription = in.readString();
@@ -60,6 +63,26 @@ public class Step implements Parcelable {
 
     public String getThumbnailUrl() {
         return thumbnailUrl;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public void setShortDescription(String shortDescription) {
+        this.shortDescription = shortDescription;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public void setVideoUrl(String videoUrl) {
+        this.videoUrl = videoUrl;
+    }
+
+    public void setThumbnailUrl(String thumbnailUrl) {
+        this.thumbnailUrl = thumbnailUrl;
     }
 
     @Override
