@@ -11,6 +11,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -69,6 +70,7 @@ public class RecipeStepDetailFragment extends Fragment implements View.OnClickLi
     private TrackSelector trackSelector;
     private ProgressBar progressBar;
     private boolean isPlayWhenReady = true;
+    private FrameLayout frameLayout;
 
     public RecipeStepDetailFragment() {
 
@@ -89,6 +91,7 @@ public class RecipeStepDetailFragment extends Fragment implements View.OnClickLi
                 R.layout.recipe_step_detail_fragment_body_part, container,
                 false);
 
+        frameLayout = rootView.findViewById(R.id.frame_layout);
         textView = rootView.findViewById(R.id.recipe_step_detail_text);
         thumbImage = rootView.findViewById(R.id.thumbImage);
 
@@ -177,6 +180,7 @@ public class RecipeStepDetailFragment extends Fragment implements View.OnClickLi
 
     private void playVideo(Step step){
         if(step.getVideoUrl() == null || step.getVideoUrl().isEmpty()){
+            frameLayout.setVisibility(View.GONE);
             thumbImage.setVisibility(View.VISIBLE);
             simpleExoPlayerView.setVisibility(View.GONE);
 
@@ -186,6 +190,7 @@ public class RecipeStepDetailFragment extends Fragment implements View.OnClickLi
                     .error(R.drawable.recipe)
                     .into(thumbImage);
         } else {
+            frameLayout.setVisibility(View.VISIBLE);
             thumbImage.setVisibility(View.GONE);
             simpleExoPlayerView.setVisibility(View.VISIBLE);
         }
