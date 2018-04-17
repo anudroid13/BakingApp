@@ -12,6 +12,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.darwinbox.bakingapp.R;
@@ -19,15 +20,21 @@ import com.darwinbox.bakingapp.activities.RecipeDetailActivity;
 import com.darwinbox.bakingapp.models.Step;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.DefaultLoadControl;
+import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayerFactory;
 import com.google.android.exoplayer2.LoadControl;
+import com.google.android.exoplayer2.PlaybackParameters;
+import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.SimpleExoPlayer;
+import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory;
 import com.google.android.exoplayer2.source.ExtractorMediaSource;
 import com.google.android.exoplayer2.source.MediaSource;
+import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.trackselection.AdaptiveTrackSelection;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
+import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.trackselection.TrackSelector;
 import com.google.android.exoplayer2.ui.AspectRatioFrameLayout;
 import com.google.android.exoplayer2.ui.PlayerView;
@@ -46,6 +53,7 @@ public class RecipeStepDetailFragment extends Fragment implements View.OnClickLi
     private static final String RESUME_POSITION_KEY = "resume_position_key";
     private String STEPS_POSITION_KEY = "steps_position_key";
     private String STEPS_LIST_KEY = "steps_list_key";
+    private String PLAY_STATE = "playstate";
 
     private PlayerView simpleExoPlayerView;
     private SimpleExoPlayer player;
@@ -59,6 +67,8 @@ public class RecipeStepDetailFragment extends Fragment implements View.OnClickLi
     private long resumePosition;
     private boolean isLandscape;
     private TrackSelector trackSelector;
+    private ProgressBar progressBar;
+    private boolean isPlayWhenReady = true;
 
     public RecipeStepDetailFragment() {
 
@@ -85,6 +95,8 @@ public class RecipeStepDetailFragment extends Fragment implements View.OnClickLi
         simpleExoPlayerView = rootView.findViewById(R.id.playerView);
         simpleExoPlayerView.setResizeMode(AspectRatioFrameLayout.RESIZE_MODE_FIT);
 
+        progressBar = rootView.findViewById(R.id.progress_bar);
+
         mPrevStep = rootView.findViewById(R.id.previousStep);
         mNextstep = rootView.findViewById(R.id.nextStep);
 
@@ -102,6 +114,8 @@ public class RecipeStepDetailFragment extends Fragment implements View.OnClickLi
             String recipeName = ((RecipeDetailActivity) getActivity()).recipeName;
             ((RecipeDetailActivity) getActivity()).getSupportActionBar().setTitle(recipeName);
         }
+
+        progressBar.setVisibility(View.GONE);
         return rootView;
     }
 
@@ -116,6 +130,7 @@ public class RecipeStepDetailFragment extends Fragment implements View.OnClickLi
                     C.INDEX_UNSET);
             resumePosition = savedInstanceState.getLong(RESUME_POSITION_KEY ,
                     C.TIME_UNSET);
+            isPlayWhenReady = savedInstanceState.getBoolean(PLAY_STATE, false);
         }
         if (isLandscape) {
             //hide the actionbar if the layout is in landscape.
@@ -156,6 +171,7 @@ public class RecipeStepDetailFragment extends Fragment implements View.OnClickLi
 
             player = ExoPlayerFactory.newSimpleInstance(getContext(), trackSelector, loadControl);
             simpleExoPlayerView.setPlayer(player);
+            player.addListener(mPlayerListener);
         }
     }
 
@@ -184,7 +200,8 @@ public class RecipeStepDetailFragment extends Fragment implements View.OnClickLi
             player.seekTo(resumePosition);
         }
         player.prepare(mediaSource , !isPlayerResumed , false);
-        player.setPlayWhenReady(true);
+//        player.setPlayWhenReady(true);
+        player.setPlayWhenReady(isPlayWhenReady);
     }
 
     @Override
@@ -201,6 +218,8 @@ public class RecipeStepDetailFragment extends Fragment implements View.OnClickLi
             if(resumePosition != C.TIME_UNSET){
                 currentState.putLong(RESUME_POSITION_KEY , resumePosition);
             }
+
+            currentState.putBoolean(PLAY_STATE, isPlayWhenReady);
         }
     }
 
@@ -254,4 +273,70 @@ public class RecipeStepDetailFragment extends Fragment implements View.OnClickLi
             trackSelector = null;
         }
     }
+
+    private final Player.EventListener mPlayerListener = new Player.EventListener() {
+
+        @Override
+        public void onTimelineChanged(Timeline timeline, Object manifest, int reason) {
+
+        }
+
+        @Override
+        public void onTracksChanged(TrackGroupArray trackGroups, TrackSelectionArray trackSelections) {
+
+        }
+
+        @Override
+        public void onLoadingChanged(boolean isLoading) {
+
+        }
+
+        @Override
+        public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
+
+            if(playbackState == Player.STATE_BUFFERING){
+                //show the loading Indicator
+                progressBar.setVisibility(View.VISIBLE);
+            }
+            if(playbackState == Player.STATE_READY){
+                //hide the loading indicator
+                isPlayWhenReady = player.getPlayWhenReady();
+                progressBar.setVisibility(View.INVISIBLE);
+            }
+            if(playbackState == Player.STATE_ENDED){
+                //hide the loading indicator
+                progressBar.setVisibility(View.INVISIBLE);
+            }
+        }
+
+        @Override
+        public void onRepeatModeChanged(int repeatMode) {
+
+        }
+
+        @Override
+        public void onShuffleModeEnabledChanged(boolean shuffleModeEnabled) {
+
+        }
+
+        @Override
+        public void onPlayerError(ExoPlaybackException error) {
+
+        }
+
+        @Override
+        public void onPositionDiscontinuity(int reason) {
+
+        }
+
+        @Override
+        public void onPlaybackParametersChanged(PlaybackParameters playbackParameters) {
+
+        }
+
+        @Override
+        public void onSeekProcessed() {
+
+        }
+    };
 }
